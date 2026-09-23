@@ -66,6 +66,37 @@ long buscarProducto( const char* nombreArchivo, int codigoProducto, Producto& pr
         return pos;
 };
 
+//Pedimos el id del mozo y buscamos si existe
+bool buscarMozo(const char* nombreArchivo, int idMozo, Mozo& mozo){
+    FILE* f = fopen(nombreArchivo, "rb");
+    if (f == NULL){
+        return false;
+    }
+
+    fseek(f, 0, SEEK_END);
+    long n = ftell(f) / sizeof(Mozo);  // cantidad de mozos queh hay en "mozos.dat"
+
+    long inicio = 0;
+    long fin = n - 1;
+    bool encontrado = false;
+
+        while(inicio <= fin && !encontrado){
+            long mitad = (inicio + fin) / 2;
+
+            fseek(f, mitad * sizeof(Mozo), SEEK_SET);   // posicionamos el puntero al medio
+            fread(&mozo, sizeof(Mozo), 1, f);  
+                if(mozo.idMozo == idMozo){
+                    encontrado = true;
+                }else if(mozo.idMozo < idMozo){   
+                    inicio = mitad + 1;
+                }else{
+                    fin = mitad - 1;
+                }
+        }
+        fclose(f);
+        return encontrado;
+};
+
 
 
 float calcularComision(float precio, int cantidad)
@@ -98,8 +129,23 @@ int main()
     }
 
     if (f == NULL) {
-        cout << "No se pudo abrir o crear la planilla" << endl;
+        cout << "No se pudo abrir o crear la planilla" << endl;  //Error al crear planilla
         return 1;
+    }
+
+    int idMozo;
+
+    cout << "Ingrese el ID del mozo: ";
+    cin >> idMozo;
+
+    Mozo mozo;
+    
+    if (buscarMozo("mozos.dat", idMozo, mozo)) {  // Si no encuentro al mozo
+        cout << "Mozo encontrado" << endl;
+            // VALIDAR TODAVIA CONTRASEÑA
+    }
+    else {
+        cout << "Mozo no encontrado" << endl;
     }
 
 
